@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using ResultPatternExample.Utils;
 
 namespace ResultPatternExample.Controllers
 {
@@ -30,12 +29,12 @@ namespace ResultPatternExample.Controllers
                     TemperatureC = Random.Shared.Next(-20, 55),
                     Summary = Summaries[Random.Shared.Next(Summaries.Length)]
                 });
-                return Ok(CsoftResult<IEnumerable<WeatherForecast>>.Success(response));
+                return Result<IEnumerable<WeatherForecast>>.Success(response);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "WeatherForecast General Error");
-                return BadRequest(CsoftResult<IEnumerable<WeatherForecast>>.Failure(Error.ProductNotFound));
+                return Result<IEnumerable<WeatherForecast>>.Failure(new Error(999, ex.Message));
             }
         }
     }

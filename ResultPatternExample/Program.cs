@@ -1,3 +1,4 @@
+global using ResultPatternExample.Utils; // Result sýnýfýný burada global olarak tüm projede kullanacak þekilde tanýmlýyoruz.
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddJsonOptions(options => { options.JsonSerializerOptions.PropertyNamingPolicy = null; });
