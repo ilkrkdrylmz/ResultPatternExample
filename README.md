@@ -1,25 +1,25 @@
-# `Result<T>` Pattern - .NET API
+# `Result<T>` Pattern - .NET API iÃ§in
 
-`Result<T>` sınıfı, özellikle .NET API'lerinde işlem sonuçlarını yönetmek için kullanılan güçlü bir **result pattern** uygulamasıdır. Bu sınıf, başarı durumunda bir değer (`Value`) ve hata durumunda bir hata mesajı (`Error`) döndürür. Ayrıca, HTTP yanıtlarını otomatik olarak uygun statülerle (`200 OK` veya `400 BadRequest`) döndürebilmek için `IActionResult`'ı implement eder.
+`Result<T>` sÄ±nÄ±fÄ±, Ã¶zellikle .NET API'lerinde iÅŸlem sonuÃ§larÄ±nÄ± yÃ¶netmek iÃ§in kullanÄ±lan gÃ¼Ã§lÃ¼ bir **result pattern** uygulamasÄ±dÄ±r. Bu sÄ±nÄ±f, baÅŸarÄ± durumunda bir deÄŸer (`Value`) ve hata durumunda bir hata mesajÄ± (`Error`) dÃ¶ndÃ¼rÃ¼r. AyrÄ±ca, HTTP yanÄ±tlarÄ±nÄ± otomatik olarak uygun statÃ¼lerle (`200 OK` veya `400 BadRequest`) dÃ¶ndÃ¼rebilmek iÃ§in `IActionResult`'Ä± implement eder.
 
-Bu desen, API'lerde hata yönetimi ve başarılı sonuçları daha tutarlı bir şekilde ele almayı sağlar.
+Bu desen, API'lerde hata yÃ¶netimi ve baÅŸarÄ±lÄ± sonuÃ§larÄ± daha tutarlÄ± bir ÅŸekilde ele almayÄ± saÄŸlar.
 
-## Özellikler
+## Ã–zellikler
 
-- **Başarı Durumu (`IsError`)**: İşlemin başarılı olup olmadığını belirler. Eğer `IsError` `false` ise başarı, `true` ise hata durumu vardır.
-- **Değer (`Value`)**: Başarı durumunda döndürülen değer.
-- **Hata (`Error`)**: Hata durumunda döndürülen hata bilgisi.
-- **HTTP Durumu**: Başarı durumunda `200 OK`, hata durumunda `400 BadRequest` yanıtı döndürülür.
-- **JSON Formatı**: Yanıtlar, JSON formatında döndürülür.
-- **Kolay Kullanım**: `Result<T>` sınıfı, API yanıtlarını direkt olarak döndürmenizi sağlar, böylece manuel dönüşüm gerekmez.
+- **BaÅŸarÄ± Durumu (`IsError`)**: Ä°ÅŸlemin baÅŸarÄ±lÄ± olup olmadÄ±ÄŸÄ±nÄ± belirler. EÄŸer `IsError` `false` ise baÅŸarÄ±, `true` ise hata durumu vardÄ±r.
+- **DeÄŸer (`Value`)**: BaÅŸarÄ± durumunda dÃ¶ndÃ¼rÃ¼len deÄŸer.
+- **Hata (`Error`)**: Hata durumunda dÃ¶ndÃ¼rÃ¼len hata bilgisi.
+- **HTTP Durumu**: BaÅŸarÄ± durumunda `200 OK`, hata durumunda `400 BadRequest` yanÄ±tÄ± dÃ¶ndÃ¼rÃ¼lÃ¼r.
+- **JSON FormatÄ±**: YanÄ±tlar, JSON formatÄ±nda dÃ¶ndÃ¼rÃ¼lÃ¼r.
+- **Kolay KullanÄ±m**: `Result<T>` sÄ±nÄ±fÄ±, API yanÄ±tlarÄ±nÄ± direkt olarak dÃ¶ndÃ¼rmenizi saÄŸlar, bÃ¶ylece manuel dÃ¶nÃ¼ÅŸÃ¼m gerekmez.
 
-## Genel Yapısı
+## Genel YapÄ±sÄ±
 
-### 1. `Result<T>` Sınıfının Yapısı
+### 1. `Result<T>` SÄ±nÄ±fÄ±nÄ±n YapÄ±sÄ±
 
-`Result<T>` sınıfı, işlem sonucunu tutan bir yapıdır. Başarı veya hata durumuna göre uygun yanıtı döndüren `ExecuteResultAsync` metodunu içerir.
+`Result<T>` sÄ±nÄ±fÄ±, iÅŸlem sonucunu tutan bir yapÄ±dÄ±r. BaÅŸarÄ± veya hata durumuna gÃ¶re uygun yanÄ±tÄ± dÃ¶ndÃ¼ren `ExecuteResultAsync` metodunu iÃ§erir.
 
-#### `Result<T>` Sınıfının Temel Yapısı
+#### `Result<T>` SÄ±nÄ±fÄ±nÄ±n Temel YapÄ±sÄ±
 
 ```csharp
 public sealed class Result<T> : IActionResult
@@ -39,20 +39,20 @@ public sealed class Result<T> : IActionResult
         Error = error ?? throw new ArgumentNullException(nameof(error), "Error cannot be null.");
     }
 
-    // Başarı durumunu döndüren metod
+    // BaÅŸarÄ± durumunu dÃ¶ndÃ¼ren metod
     public static Result<T> Success(T value) => new(value);
 
-    // Hata durumunu döndüren metod
+    // Hata durumunu dÃ¶ndÃ¼ren metod
     public static Result<T> Failure(Error error) => new(error);
 
-    // IActionResult implementasyonu ile HTTP yanıtlarını döndüren metod
+    // IActionResult implementasyonu ile HTTP yanÄ±tlarÄ±nÄ± dÃ¶ndÃ¼ren metod
     public async Task ExecuteResultAsync(ActionContext context)
     {
         context.HttpContext.Response.ContentType = "application/json";
 
         if (!IsError)
         {
-            // Başarı durumu (200 OK)
+            // BaÅŸarÄ± durumu (200 OK)
             context.HttpContext.Response.StatusCode = StatusCodes.Status200OK;
             if (Value is not null)
             {
@@ -72,7 +72,7 @@ public sealed class Result<T> : IActionResult
 }
 ```
 
-## Örnek Kullanımı
+## Ã–rnek KullanÄ±mÄ±
 
 ```csharp
 [HttpGet(Name = "GetWeatherForecast")]
