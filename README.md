@@ -13,7 +13,7 @@ Bu desen, API'lerde hata yönetimi ve baþarýlý sonuçlarý daha tutarlý bir þekilde
 - **JSON Formatý**: Yanýtlar, JSON formatýnda döndürülür.
 - **Kolay Kullaným**: `Result<T>` sýnýfý, API yanýtlarýný direkt olarak döndürmenizi saðlar, böylece manuel dönüþüm gerekmez.
 
-## Kullaným
+## Genel Yapýsý
 
 ### 1. `Result<T>` Sýnýfýnýn Yapýsý
 
@@ -70,3 +70,28 @@ public sealed class Result<T> : IActionResult
         }
     }
 }
+```
+
+## Örnek Kullanýmý
+
+```csharp
+[HttpGet(Name = "GetWeatherForecast")]
+public IActionResult Get()
+{
+    try
+    {
+        var response = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        {
+            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+            TemperatureC = Random.Shared.Next(-20, 55),
+            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+        });
+        return Result<IEnumerable<WeatherForecast>>.Success(response);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "WeatherForecast General Error");
+        return Result<IEnumerable<WeatherForecast>>.Failure(new Error(999, ex.Message));
+    }
+}
+```
